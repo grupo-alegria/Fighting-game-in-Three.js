@@ -1,48 +1,113 @@
 class Fighter {
-    constructor(scene, spriteSheet, position) {
+    constructor(scene, sprites, position, frameWidth, frameHeight) {
         this.scene = scene;
-        this.spriteSheet = spriteSheet; // Textura com os frames do lutador
-        this.position = position; // Posição inicial do lutador
-        this.currentFrame = 0; // Frame atual da animação
-        this.frames = []; // Array de frames (Texturas)
-        this.state = 'idle'; // Estado atual do lutador (idle, attacking, jumping, etc.)
+        this.sprites = {
+            rightLegForward: sprites[0], // fighterrl.png
+            rightLegBack: sprites[1],    // fighterrr.png
+            leftLegForward: sprites[2],  // fighterlr.png
+            leftLegBack: sprites[3],     // fighterll.png
+            punchRight: sprites[4],     // fighterpunchr.png
+            punchLeft: sprites[5],      // fighterpunchl.png
+        };
+        this.position = position;
+        this.currentFrame = this.sprites.rightLegForward; // Frame inicial
+        this.frames = {}; // Objeto de frames (Texturas)
+        this.state = 'idle'; // Estado atual do lutador
+        this.direction = 'right'; // Direção inicial do lutador
+        this.frameWidth = frameWidth;
+        this.frameHeight = frameHeight;
+        this.opponent = null; // Oponente inicialmente indefinido
         this.loadFrames();
         this.createMesh();
     }
 
     loadFrames() {
-        // Carregar os frames da sprite sheet
-        // Exemplo: this.frames.push(new THREE.TextureLoader().load('assets/sprites/fighter1_idle.png'));
-        // this.frames.push(new THREE.TextureLoader().load('assets/sprites/fighter1_attack.png'));
+        const textureLoader = new THREE.TextureLoader();
+        for (const key in this.sprites) {
+            this.frames[key] = textureLoader.load(this.sprites[key]);
+        }
     }
 
     createMesh() {
-        const geometry = new THREE.PlaneGeometry(1, 2); // Geometria 2D para o lutador
-        const material = new THREE.MeshBasicMaterial({ map: this.frames[this.currentFrame], transparent: true });
+        const geometry = new THREE.PlaneGeometry(this.frameWidth, this.frameHeight);
+        const material = new THREE.MeshBasicMaterial({
+            map: this.frames.rightLegForward,
+            transparent: true,
+        });
         this.mesh = new THREE.Mesh(geometry, material);
         this.mesh.position.set(this.position.x, this.position.y, this.position.z);
         this.scene.add(this.mesh);
     }
 
-    update(deltaTime) {
-        // Atualizar a animação do lutador
-        this.currentFrame = (this.currentFrame + 1) % this.frames.length;
-        this.mesh.material.map = this.frames[this.currentFrame];
+    setState(newState) {
+        this.state = newState;
+
+        switch (this.state) {
+            case 'idle':
+                this.currentFrame = this.direction === 'right'
+                    ? this.frames.rightLegForward
+                    : this.frames.leftLegForward;
+                break;
+
+            case 'moving':
+                this.currentFrame = this.direction === 'right'
+                    ? (this.currentFrame === this.frames.rightLegForward
+                        ? this.frames.rightLegBack
+                        : this.frames.rightLegForward)
+                    : (this.currentFrame === this.frames.leftLegForward
+                        ? this.frames.leftLegBack
+                        : this.frames.leftLegForward);
+                break;
+
+            case 'punching':
+                this.currentFrame = this.direction === 'right'
+                    ? this.frames.punchRight
+                    : this.frames.punchLeft;
+                setTimeout(() => {
+                    this.setState('idle');
+                }, 300); // Duração do golpe em milissegundos
+                break;
+
+            default:
+                console.warn(`Estado desconhecido: ${newState}`);
+                break;
+        }
+
+        this.mesh.material.map = this.currentFrame;
         this.mesh.material.needsUpdate = true;
     }
 
-    setState(newState) {
-        this.state = newState;
-        // Aqui você pode mudar o conjunto de frames dependendo do estado
-        // Exemplo: if (newState === 'attacking') { this.frames = attackFrames; }
+    setOpponent(opponent) {
+        this.opponent = opponent; // Define o oponente após a criação
+    }
+
+    faceOpponent() {
+        if (!this.opponent) {
+            console.warn('Oponente não definido!');
+            return;
+        }
+
+        if (this.opponent.mesh.position.x > this.mesh.position.x) {
+            this.direction = 'right';
+        } else {
+            this.direction = 'left';
+        }
+        this.setState(this.state); // Atualiza os frames com base na nova direção
     }
 
     move(direction) {
-        // Mover o lutador no eixo X
+        this.setState('moving');
         this.mesh.position.x += direction * 0.1;
     }
 
-    jump() {
-        // Implementar lógica de pulo
+    punch() {
+        this.setState('punching');
+    }
+
+    update(deltaTime) {
+        if (this.state === 'moving') {
+            this.mesh.material.map = this.currentFrame;
+            this.mesh.material.needsUpdate = true;
+        }
     }
 }
