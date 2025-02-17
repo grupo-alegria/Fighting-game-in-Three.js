@@ -97,7 +97,7 @@ class Fighter {
 
     move(direction) {
         this.setState('moving');
-        this.mesh.position.x += direction * 0.1;
+        this.mesh.position.x += direction * 11;
     }
 
     punch() {
@@ -108,6 +108,9 @@ class Fighter {
         if (this.state === 'moving') {
             this.mesh.material.map = this.currentFrame;
             this.mesh.material.needsUpdate = true;
+            setTimeout(() => {
+                this.setState('idle');
+            }, 250);
         }
     }
 }
