@@ -6,13 +6,24 @@ class Game {
         this.renderer.setSize(window.innerWidth, window.innerHeight);
         document.body.appendChild(this.renderer.domElement);
 
-        this.createGround(); // Cria o chão antes dos lutadores
+        // Cria o chão
+        this.createGround();
+
+        // Cria os lutadores
         this.createFighters();
+
+        // Configura o input handler
         this.inputHandler = new InputHandler(this.fighter1, this.fighter2);
 
+        // Adiciona o efeito de estática
+        this.createStaticEffect();
+
+        // Inicia o loop de animação
         this.clock = new THREE.Clock();
         this.animate();
-        camera_controller = new CameraController(this.camera, this.fighter1, this.fighter2);
+
+        // Configura o controlador da câmera
+        this.camera_controller = new CameraController(this.camera, this.fighter1, this.fighter2);
     }
 
     createGround() {
@@ -49,13 +60,70 @@ class Game {
         this.fighter1.setOpponent(this.fighter2);
         this.fighter2.setOpponent(this.fighter1);
 
+        // Vira os lutadores na direção do adversário
         this.fighter1.faceOpponent();
         this.fighter2.faceOpponent();
     }
 
+    createStaticEffect() {
+        const staticShader = {
+            vertexShader: `
+                varying vec2 vUv;
+                void main() {
+                    vUv = uv;
+                    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+                }
+            `,
+            fragmentShader: `
+                varying vec2 vUv;
+                uniform float time;
+    
+                float random(vec2 st) {
+                    return fract(sin(dot(st.xy + time, vec2(12.9898, 78.233))) * 43758.5453);
+                }
+    
+                void main() {
+                    float noise = random(vUv + time);
+                    if (noise > 0.995) { // Ajuste para maior densidade de pontos
+                        gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0); // Branco
+                    } else {
+                        discard; // Mantém transparência sem precisar de alpha manual
+                    }
+                }
+            `,
+            uniforms: {
+                time: { value: 0.0 },
+            },
+        };
+    
+        // Criar material do shader
+        this.staticMaterial = new THREE.ShaderMaterial({
+            vertexShader: staticShader.vertexShader,
+            fragmentShader: staticShader.fragmentShader,
+            uniforms: staticShader.uniforms,
+            transparent: true, // Permitir transparência
+        });
+    
+        // Criar um plano para exibir a estática
+        const planeGeometry = new THREE.PlaneGeometry(10000, 10000); // Tamanho do efeito
+        this.staticMesh = new THREE.Mesh(planeGeometry, this.staticMaterial);
+    
+        // Posicionar o plano na frente da câmera
+        this.staticMesh.position.set(0, 0, 150); // Ajuste conforme necessário
+        this.scene.add(this.staticMesh);
+    }
+    
+    
+    
+
     animate() {
         requestAnimationFrame(() => this.animate());
         const deltaTime = this.clock.getDelta();
+
+        // Atualiza o tempo do shader de ruído
+        if (this.staticMaterial) {
+            this.staticMaterial.uniforms.time.value += deltaTime;
+        }
 
         // Atualiza os lutadores
         this.fighter1.update(deltaTime);
@@ -64,6 +132,11 @@ class Game {
         // Vira os lutadores na direção do adversário
         this.fighter1.faceOpponent();
         this.fighter2.faceOpponent();
+
+        // Atualiza a câmera
+        if (this.camera_controller) {
+            this.camera_controller.update();
+        }
 
         // Renderiza a cena
         this.renderer.render(this.scene, this.camera);
