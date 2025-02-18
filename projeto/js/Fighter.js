@@ -110,7 +110,7 @@ class Fighter {
             this.mesh.material.needsUpdate = true;
             setTimeout(() => {
                 this.setState('idle');
-            }, 250);
+            }, 200);
         }
     }
 }
