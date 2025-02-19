@@ -3,21 +3,27 @@ class CameraController {
         this.camera = camera;
         this.fighter1 = fighter1;
         this.fighter2 = fighter2;
-        console.log('fui instanciado')
-        this.update()
+        this.lastUpdateTime = 0; // Armazena o tempo da última atualização
+        this.updateInterval = .2; // Intervalo de 2 segundos
     }
 
-    update() {
-        const pos1 = this.fighter1.mesh.position;
-        const pos2 = this.fighter2.mesh.position;
-        const midPoint = new THREE.Vector3((pos1.x + pos2.x) / 2, (pos1.y + pos2.y) / 2, 0);
-        this.camera.position.set(midPoint.x, midPoint.y + 5,  200);
-        console.log(Math.abs(pos1.x - pos2.x)   )
-        //this.camera.position.set(midPoint.x, midPoint.y + 5, 200);
-        this.camera.lookAt(midPoint);
-        setInterval(() => {
-            this.update()
-            console.log('fui updatato')
-        }, 2000);
+    update(deltaTime) {
+        // Atualiza o tempo decorrido
+        this.lastUpdateTime += deltaTime;
+
+        // Verifica se 2 segundos se passaram
+        if (this.lastUpdateTime >= this.updateInterval) {
+            // Calcula o ponto médio entre os lutadores
+            const pos1 = this.fighter1.mesh.position;
+            const pos2 = this.fighter2.mesh.position;
+            const midPoint = new THREE.Vector3((pos1.x + pos2.x) / 2, (pos1.y + pos2.y) / 2, 0);
+
+            // Reposiciona a câmera
+            this.camera.position.set(midPoint.x, midPoint.y + 5, 200);
+            this.camera.lookAt(midPoint);
+
+            // Reseta o contador de tempo
+            this.lastUpdateTime = 0;
+        }
     }
 }

@@ -40,7 +40,7 @@ class Game {
 
     createBackground() {
         // Ajusta a largura para ser igual à largura da tela
-        const backgroundGeometry = new THREE.BoxGeometry(window.innerWidth * 6, window.innerHeight * 6, 1);
+        const backgroundGeometry = new THREE.BoxGeometry(window.innerWidth * 7, window.innerHeight * 7, 1);
     
         // Carrega a textura para o fundo
         const textureLoader = new THREE.TextureLoader();
@@ -156,13 +156,13 @@ class Game {
         this.fighter1.update(deltaTime);
         this.fighter2.update(deltaTime);
 
-        // Vira os lutadores na direção do adversário
+        // // Vira os lutadores na direção do adversário
         this.fighter1.faceOpponent();
         this.fighter2.faceOpponent();
 
         // Atualiza a câmera
         if (this.camera_controller) {
-            this.camera_controller.update();
+            this.camera_controller.update(deltaTime);
         }
 
         // Renderiza a cena
