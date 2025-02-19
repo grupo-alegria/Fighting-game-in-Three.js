@@ -4,7 +4,7 @@ class CameraController {
         this.fighter1 = fighter1;
         this.fighter2 = fighter2;
         this.lastUpdateTime = 0; // Armazena o tempo da última atualização
-        this.updateInterval = .2; // Intervalo de 2 segundos
+        this.updateInterval = .15; // Intervalo de 2 segundos
     }
 
     update(deltaTime) {

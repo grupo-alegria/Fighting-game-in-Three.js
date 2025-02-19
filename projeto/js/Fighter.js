@@ -137,7 +137,7 @@ class Fighter {
     
             // Aplica o "salto" no oponente
             const jumpHeight = 50;  // Altura do salto
-            const pushDistance = 80; // Distância que ele será empurrado para trás
+            const pushDistance = 200; // Distância que ele será empurrado para trás
             const jumpDuration = 100; // Tempo do salto (ms)
             const fallDuration = 200; // Tempo da queda (ms)
     
