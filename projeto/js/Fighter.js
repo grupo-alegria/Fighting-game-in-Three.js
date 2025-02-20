@@ -17,6 +17,7 @@ class Fighter {
         this.frameWidth = frameWidth;
         this.frameHeight = frameHeight;
         this.opponent = null; // Oponente inicialmente indefinido
+        this.lifes = 5;
         this.loadFrames();
         this.createMesh();
     }
@@ -26,6 +27,11 @@ class Fighter {
         for (const key in this.sprites) {
             this.frames[key] = textureLoader.load(this.sprites[key]);
         }
+    }
+
+    loseFife(){
+        this.lifes -=1;
+        console.log(this.lifes)
     }
 
     createMesh() {
@@ -122,24 +128,39 @@ class Fighter {
 
             this.setState('moving');
         }
-
-        this.mesh.position.x += direction * moveSpeed;
+        if(this.mesh.position.x > -1400 && this.mesh.position.x < 1400){
+            this.mesh.position.x += direction * moveSpeed;
+        }
+        else{
+            if(this.mesh.position.x < -1400){
+                this.mesh.position.x = -1399
+            }
+            else{
+                if(this.mesh.position.x > 1400){
+                    this.mesh.position.x = 1399
+                }
+            }
+        }
+            
     }
 
 
     punch() {
         this.setState('punching');
 
-        // Carregar o som de soco (uma vez) ou quando necessário
-        const punchSound = new Audio('./assets/sounds/punch.mp3'); // Caminho para o arquivo de som
-
-        // Toca o som do soco
-        punchSound.play().catch(error => {
-            console.error('Erro ao reproduzir o som:', error);
-        });
 
         // Verifica se o oponente está perto o suficiente para ser atingido
         if (Math.abs(this.opponent.mesh.position.x - this.mesh.position.x) < 250) {
+            // Carregar o som de soco (uma vez) ou quando necessário
+            const punchSound = new Audio('./assets/sounds/punch.mp3'); // Caminho para o arquivo de som
+
+            // Toca o som do soco
+            punchSound.play().catch(error => {
+                console.error('Erro ao reproduzir o som:', error);
+            });
+
+            this.opponent.loseFife();
+            
             const pushDirection = this.opponent.mesh.position.x > this.mesh.position.x ? 1 : -1;
 
             // Aplica o "salto" no oponente
@@ -161,6 +182,15 @@ class Fighter {
                     .easing(TWEEN.Easing.Quadratic.In)
                     .start();
             }, jumpDuration);
+        }
+        else{
+            // Carregar o som de soco (uma vez) ou quando necessário
+            const punchSound = new Audio('./assets/sounds/miss.mp3'); // Caminho para o arquivo de som
+
+            // Toca o som do soco
+            punchSound.play().catch(error => {
+                console.error('Erro ao reproduzir o som:', error);
+            });
         }
 
         // Mantém o lutador no frame de soco por 0.5 segundos antes de voltar ao idle
