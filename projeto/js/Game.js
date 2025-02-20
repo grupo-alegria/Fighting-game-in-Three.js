@@ -96,8 +96,8 @@ class Game {
             './assets/sprites/fighter2punchl.png',
         ];
 
-        this.fighter1 = new Fighter(this.scene, fighter1Sprites, { x: -100, y: 0, z: 0 }, 700, 1000);
-        this.fighter2 = new Fighter(this.scene, fighter2Sprites, { x: 100, y: 0, z: 0 }, 700, 1000);
+        this.fighter1 = new Fighter(this.scene, fighter1Sprites, { x: -100, y: 0, z: 0 }, 700, 1000, 'fighter1');
+        this.fighter2 = new Fighter(this.scene, fighter2Sprites, { x: 100, y: 0, z: 0 }, 700, 1000, 'fighter2');
 
         // Define os oponentes após a criação
         this.fighter1.setOpponent(this.fighter2);
@@ -106,6 +106,13 @@ class Game {
         // Vira os lutadores na direção do adversário
         this.fighter1.faceOpponent();
         this.fighter2.faceOpponent();
+
+        // Depois de criar os fighters (fighter1 e fighter2)
+        this.fighter1.updateHealthDisplay();
+        this.fighter2.updateHealthDisplay();
+
+        // Inverta a ordem do P2 se necessário
+        document.querySelector('#player2-health .life-container').style.flexDirection = 'row-reverse';
     }
 
     createStaticEffect() {

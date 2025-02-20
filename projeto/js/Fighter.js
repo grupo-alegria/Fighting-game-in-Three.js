@@ -1,5 +1,5 @@
 class Fighter {
-    constructor(scene, sprites, position, frameWidth, frameHeight) {
+    constructor(scene, sprites, position, frameWidth, frameHeight, name) {
         this.scene = scene;
         this.sprites = {
             rightLegForward: sprites[0], // fighterrl.png
@@ -18,6 +18,7 @@ class Fighter {
         this.frameHeight = frameHeight;
         this.opponent = null; // Oponente inicialmente indefinido
         this.lifes = 5;
+        this.name = name
         this.loadFrames();
         this.createMesh();
     }
@@ -29,10 +30,48 @@ class Fighter {
         }
     }
 
-    loseFife(){
-        this.lifes -=1;
-        console.log(this.lifes)
+    loseLife() {
+        if (this.lifes > 0) {
+            this.lifes -= 1;
+            this.updateHealthDisplay();
+            console.log(`Vida restante de ${this.name}: ${this.lifes}`);
+        } else {
+            console.log(`${this.name} está sem vidas!`);
+        }
     }
+
+    updateHealthDisplay() {
+        console.log("entrou");
+        
+        let playerElement;
+        if (this.name === "fighter1") {
+            playerElement = document.getElementById('player1-health');
+        } else {
+            playerElement = document.getElementById('player2-health');
+        }
+    
+        if (!playerElement) {
+            console.error("Elemento de vida não encontrado para:", this.name);
+            return;
+        }
+    
+        const livesContainer = playerElement.querySelector('.lives');
+        if (!livesContainer) {
+            console.error("Container de vidas não encontrado dentro de", playerElement);
+            return;
+        }
+    
+        // Limpa os ícones atuais
+        livesContainer.innerHTML = '';
+    
+        // Adiciona novos ícones baseados na vida atual
+        for (let i = 0; i < this.lifes; i++) {
+            const lifeIcon = document.createElement('div');
+            lifeIcon.className = 'life-icon';
+            livesContainer.appendChild(lifeIcon);
+        }
+    }
+    
 
     createMesh() {
         const geometry = new THREE.PlaneGeometry(this.frameWidth, this.frameHeight);
@@ -159,7 +198,7 @@ class Fighter {
                 console.error('Erro ao reproduzir o som:', error);
             });
 
-            this.opponent.loseFife();
+            this.opponent.loseLife();
             
             const pushDirection = this.opponent.mesh.position.x > this.mesh.position.x ? 1 : -1;
 
