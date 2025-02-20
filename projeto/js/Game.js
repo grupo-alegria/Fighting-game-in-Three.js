@@ -5,7 +5,7 @@ class Game {
         this.renderer = new THREE.WebGLRenderer();
         this.renderer.setSize(window.innerWidth, window.innerHeight);
         document.body.appendChild(this.renderer.domElement);
-    
+
         this.createBackground(); // Cria o fundo
         this.createGround(); // Cria o chão antes dos lutadores
         this.createFighters();
@@ -27,10 +27,10 @@ class Game {
     createGround() {
         // Ajusta a largura para ser igual à largura do fundo
         const groundGeometry = new THREE.BoxGeometry(window.innerWidth * 6, 10, window.innerHeight); // Largura igual ao fundo, altura 10, profundidade suficiente para cobrir a tela
-        
+
         const groundMaterial = new THREE.MeshBasicMaterial({ color: 0x8B4513 }); // Marrom, para representar o chão
         this.ground = new THREE.Mesh(groundGeometry, groundMaterial);
-    
+
         // Posiciona o chão logo abaixo do fundo, sem sobrepor os lutadores
         this.ground.position.set(0, -1150, 0); // O valor -500 pode ser ajustado para garantir que o chão fique visível corretamente
 
@@ -41,26 +41,42 @@ class Game {
     createBackground() {
         // Ajusta a largura para ser igual à largura da tela
         const backgroundGeometry = new THREE.BoxGeometry(window.innerWidth * 7, window.innerHeight * 7, 1);
-    
-        // Carrega a textura para o fundo
-        const textureLoader = new THREE.TextureLoader();
-        const backgroundTexture = textureLoader.load('./assets/scenario/background2.gif'); 
-    
-        // Cria o material com a textura
+
+        // Cria o elemento de vídeo
+        let textureVid = document.createElement("video");
+        textureVid.src = './assets/scenario/background2.mp4'; // Transforme o GIF em um arquivo MP4
+        textureVid.loop = true;
+        textureVid.load(); // Carrega o vídeo (sem iniciar ainda)
+
+        // Cria a textura de vídeo
+        let videoTexture = new THREE.VideoTexture(textureVid);
+        videoTexture.format = THREE.RGBFormat;
+        videoTexture.minFilter = THREE.NearestFilter;
+        videoTexture.maxFilter = THREE.NearestFilter;
+        videoTexture.generateMipmaps = false;
+
+        // Cria o material com a textura de vídeo
         const backgroundMaterial = new THREE.MeshBasicMaterial({
-            map: backgroundTexture, 
+            map: videoTexture,
             side: THREE.BackSide // O fundo deve ser visível de dentro
         });
-    
+
         // Cria o plano de fundo
         this.background = new THREE.Mesh(backgroundGeometry, backgroundMaterial);
-    
+
         // Coloca o fundo atrás da cena, ligeiramente acima do chão para não cobri-lo
-        this.background.position.set(0, 900, -500); 
-    
+        this.background.position.set(0, 900, -500);
+
         // Adiciona o fundo à cena
         this.scene.add(this.background);
-    } 
+
+        // Adiciona um evento de clique para iniciar a reprodução do vídeo
+        window.addEventListener('keydown', () => {
+            textureVid.play().catch(error => {
+                console.error('Erro ao reproduzir o vídeo:', error);
+            });
+        });
+    }
 
     createFighters() {
         const fighter1Sprites = [
@@ -122,7 +138,7 @@ class Game {
                 time: { value: 0.0 },
             },
         };
-    
+
         // Criar material do shader
         this.staticMaterial = new THREE.ShaderMaterial({
             vertexShader: staticShader.vertexShader,
@@ -130,18 +146,18 @@ class Game {
             uniforms: staticShader.uniforms,
             transparent: true, // Permitir transparência
         });
-    
+
         // Criar um plano para exibir a estática
         const planeGeometry = new THREE.PlaneGeometry(10000, 10000); // Tamanho do efeito
         this.staticMesh = new THREE.Mesh(planeGeometry, this.staticMaterial);
-    
+
         // Posicionar o plano na frente da câmera
-        this.staticMesh.position.set(0, 0, 150); // Ajuste conforme necessário
+        this.staticMesh.position.set(0, 0, 100); // Ajuste conforme necessário
         this.scene.add(this.staticMesh);
     }
-    
-    
-    
+
+
+
 
     animate() {
         requestAnimationFrame(() => this.animate());
