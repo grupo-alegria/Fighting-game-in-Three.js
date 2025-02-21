@@ -9,7 +9,8 @@ class Game {
         this.createBackground(); // Cria o fundo
         this.createGround(); // Cria o chão antes dos lutadores
         this.createFighters();
-
+        this.createDragon();
+        this.setupLightingAndShadows();
         // Configura o input handler
         this.inputHandler = new InputHandler(this.fighter1, this.fighter2);
 
@@ -23,6 +24,45 @@ class Game {
         // Configura o controlador da câmera
         this.camera_controller = new CameraController(this.camera, this.fighter1, this.fighter2);
     }
+
+    setupLightingAndShadows() {
+        // Adiciona luz ambiente para iluminação suave
+        const ambientLight = new THREE.AmbientLight(0x404040, 2);
+        this.scene.add(ambientLight);
+
+        // Ativa sombras no dragão (deve ser chamado após o carregamento do modelo)
+        if (this.dragon) {
+            this.dragon.traverse((child) => {
+                if (child.isMesh) {
+                    child.castShadow = true;
+                    child.receiveShadow = true;
+                }
+            });
+        }
+
+        // Ativa sombras no chão
+        if (this.ground) {
+            this.ground.receiveShadow = true;
+        }
+
+        // Ativa sombras no renderizador
+        this.renderer.shadowMap.enabled = true;
+        this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    }
+
+    createDragon() {
+        const loader = new THREE.GLTFLoader();
+        loader.load('./assets/scenario/dragon/scene.gltf', (gltf) => {
+            const dragon = gltf.scene;
+            dragon.scale.set(30, 30, 30); // Ajuste a escala conforme necessário
+            dragon.position.set(0, 300, -10); // Posiciona o dragão acima dos bonecos
+            dragon.renderOrder = 1;
+
+            this.scene.add(dragon); // Adiciona o dragão à cena
+            this.dragon = dragon; // Salva o dragão como propriedade da classe para uso posterior
+        });
+    }
+
 
     createGround() {
         // Ajusta a largura para ser igual à largura do fundo
@@ -163,12 +203,36 @@ class Game {
         this.scene.add(this.staticMesh);
     }
 
+    updateDragonMovement() {
+        if (!this.dragon) return;
 
+        const time = this.clock.getElapsedTime();
+        const radius = 300; // Raio do círculo
+        const speed = 1; // Velocidade do movimento
 
+        // Posição atual do dragão no círculo
+        const x = Math.sin(time * speed) * radius;
+        const z = Math.cos(time * speed) * radius;
+        const y = 200 + Math.sin(time * 2) * 50; // Movimento de subida/descida
+
+        this.dragon.position.set(x, y, z);
+
+        // Calcula a próxima posição para o dragão olhar
+        const nextX = Math.sin((time + 0.1) * speed) * radius;
+        const nextZ = Math.cos((time + 0.1) * speed) * radius;
+
+        // Faz o dragão olhar na direção do movimento
+        this.dragon.lookAt(new THREE.Vector3(nextX, y, nextZ));
+
+        // Inverte a rotação para corrigir a orientação
+        this.dragon.rotateY(Math.PI);
+    }
 
     animate() {
         requestAnimationFrame(() => this.animate());
         const deltaTime = this.clock.getDelta();
+
+        this.updateDragonMovement();
 
         // Atualiza o tempo do shader de ruído
         if (this.staticMaterial) {
