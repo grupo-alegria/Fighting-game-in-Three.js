@@ -97,14 +97,26 @@ class Game {
     }
 
     createGround() {
-        // Ajusta a largura para ser igual à largura do fundo
-        const groundGeometry = new THREE.BoxGeometry(window.innerWidth * 6, 10, window.innerHeight); // Largura igual ao fundo, altura 10, profundidade suficiente para cobrir a tela
+        // Carrega a textura do chão
+        const textureLoader = new THREE.TextureLoader();
+        const groundTexture = textureLoader.load('./assets/scenario/rock_texture2.png');
 
-        const groundMaterial = new THREE.MeshBasicMaterial({ color: 0x8B4513 }); // Marrom, para representar o chão
+        // Ajusta a repetição da textura
+        groundTexture.wrapS = THREE.RepeatWrapping;
+        groundTexture.wrapT = THREE.RepeatWrapping;
+        groundTexture.repeat.set(15, 15); // Define quantas vezes a textura se repete no chão
+
+        // Cria a geometria do chão
+        const groundGeometry = new THREE.BoxGeometry(window.innerWidth * 6, 10, window.innerHeight);
+
+        // Cria o material com a textura aplicada
+        const groundMaterial = new THREE.MeshBasicMaterial({ map: groundTexture });
+
+        // Cria o mesh do chão
         this.ground = new THREE.Mesh(groundGeometry, groundMaterial);
 
-        // Posiciona o chão logo abaixo do fundo, sem sobrepor os lutadores
-        this.ground.position.set(0, -1150, 0); // O valor -500 pode ser ajustado para garantir que o chão fique visível corretamente
+        // Posiciona o chão
+        this.ground.position.set(0, -1400, 0);
 
         // Adiciona o chão à cena
         this.scene.add(this.ground);

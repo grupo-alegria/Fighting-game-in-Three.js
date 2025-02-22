@@ -41,37 +41,119 @@ class Fighter {
     }
 
     updateHealthDisplay() {
-        console.log("entrou");
-        
         let playerElement;
         if (this.name === "fighter1") {
             playerElement = document.getElementById('player1-health');
         } else {
             playerElement = document.getElementById('player2-health');
         }
-    
+
         if (!playerElement) {
             console.error("Elemento de vida não encontrado para:", this.name);
             return;
         }
-    
+
         const livesContainer = playerElement.querySelector('.lives');
         if (!livesContainer) {
             console.error("Container de vidas não encontrado dentro de", playerElement);
             return;
         }
-    
+
         // Limpa os ícones atuais
         livesContainer.innerHTML = '';
-    
+
         // Adiciona novos ícones baseados na vida atual
         for (let i = 0; i < this.lifes; i++) {
             const lifeIcon = document.createElement('div');
             lifeIcon.className = 'life-icon';
             livesContainer.appendChild(lifeIcon);
         }
+
+        // Verifica se o jogador perdeu todas as vidas
+        if (this.lifes === 0) {
+            this.showGameOverScreen();
+        }
     }
-    
+
+    static updateScoreboard() {
+        let scores = JSON.parse(localStorage.getItem("scores")) || { fighter1: 0, fighter2: 0 };
+        document.getElementById("score-fighter1").textContent = scores.fighter1;
+        document.getElementById("score-fighter2").textContent = scores.fighter2;
+    }
+
+    showGameOverScreen() {
+        console.log("Game Over! Exibindo tela...");
+
+        const gameOverSound = new Audio('./assets/sounds/game_over.mp3');
+
+        gameOverSound.play().catch(error => {
+            console.error('Erro ao reproduzir o som:', error);
+        });
+
+        // Identificar quem venceu
+        const winner = this.name === "fighter1" ? "fighter2" : "fighter1";
+
+        // Atualizar o placar de vitórias no localStorage
+        let scores = JSON.parse(localStorage.getItem("scores")) || { fighter1: 0, fighter2: 0 };
+        scores[winner] += 1;
+        localStorage.setItem("scores", JSON.stringify(scores));
+
+        // Evita múltiplas telas de game over
+        if (document.getElementById('game-over-screen')) return;
+
+        // Criar o container do overlay
+        const overlay = document.createElement('div');
+        overlay.id = 'game-over-screen';
+        overlay.style.position = 'fixed';
+        overlay.style.top = '0';
+        overlay.style.left = '0';
+        overlay.style.width = '100vw';
+        overlay.style.height = '100vh';
+        overlay.style.backgroundColor = 'rgba(0, 0, 0, 0.8)';
+        overlay.style.display = 'flex';
+        overlay.style.flexDirection = 'column';
+        overlay.style.justifyContent = 'center';
+        overlay.style.alignItems = 'center';
+        overlay.style.zIndex = '1000';
+
+        //Criar o placar
+        // const scoreBoard = document.createElement('div');
+        // scoreBoard.id = 'score-board';
+        // scoreBoard.style.color = '#fff';
+        // scoreBoard.style.padding = '5px';
+        // scoreBoard.style.borderRadius = '10px';
+        // scoreBoard.style.textAlign = 'center';
+
+        // scoreBoard.innerHTML = `
+        //     <h3 style="margin-top: 10px;">Winner: ${winner.toUpperCase()}! 🎉</h3>
+        // `;
+
+        // Criar o GIF de Game Over
+        const gameOverImage = document.createElement('img');
+        gameOverImage.src = './assets/scenario/game_over.gif';
+        gameOverImage.alt = 'Game Over';
+        gameOverImage.style.width = '500px';
+
+        // Criar a imagem do botão de reset
+        const resetButton = document.createElement('img');
+        resetButton.src = './assets/scenario/restart-button.png';
+        resetButton.alt = 'Restart Game';
+        resetButton.style.width = '250px';
+        resetButton.style.cursor = 'pointer';
+
+        // Evento para recarregar a página ao clicar no botão
+        resetButton.addEventListener('click', () => {
+            location.reload();
+        });
+
+        // Adiciona os elementos ao overlay
+        // overlay.appendChild(scoreBoard);
+        overlay.appendChild(gameOverImage);
+        overlay.appendChild(resetButton);
+
+        // Adiciona o overlay ao body
+        document.body.appendChild(overlay);
+    }
 
     createMesh() {
         const geometry = new THREE.PlaneGeometry(this.frameWidth, this.frameHeight);
@@ -167,20 +249,20 @@ class Fighter {
 
             this.setState('moving');
         }
-        if(this.mesh.position.x > -1400 && this.mesh.position.x < 1400){
+        if (this.mesh.position.x > -1400 && this.mesh.position.x < 1400) {
             this.mesh.position.x += direction * moveSpeed;
         }
-        else{
-            if(this.mesh.position.x < -1400){
+        else {
+            if (this.mesh.position.x < -1400) {
                 this.mesh.position.x = -1399
             }
-            else{
-                if(this.mesh.position.x > 1400){
+            else {
+                if (this.mesh.position.x > 1400) {
                     this.mesh.position.x = 1399
                 }
             }
         }
-            
+
     }
 
 
@@ -199,7 +281,7 @@ class Fighter {
             });
 
             this.opponent.loseLife();
-            
+
             const pushDirection = this.opponent.mesh.position.x > this.mesh.position.x ? 1 : -1;
 
             // Aplica o "salto" no oponente
@@ -222,7 +304,7 @@ class Fighter {
                     .start();
             }, jumpDuration);
         }
-        else{
+        else {
             // Carregar o som de soco (uma vez) ou quando necessário
             const punchSound = new Audio('./assets/sounds/miss.mp3'); // Caminho para o arquivo de som
 
