@@ -1,0 +1,11 @@
+Model Information:
+* title:	Wood Crates
+* source:	https://sketchfab.com/3d-models/wood-crates-b92aa3a262dd4aaea34746a58782329e
+* author:	Tafe Lynx (https://sketchfab.com/tafelynx)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Wood Crates" (https://sketchfab.com/3d-models/wood-crates-b92aa3a262dd4aaea34746a58782329e) by Tafe Lynx (https://sketchfab.com/tafelynx) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

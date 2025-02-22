@@ -10,12 +10,13 @@ class Game {
         this.createGround(); // Cria o chão antes dos lutadores
         this.createFighters();
         this.createDragon();
+        this.createBoxes();
         this.setupLightingAndShadows();
         // Configura o input handler
         this.inputHandler = new InputHandler(this.fighter1, this.fighter2);
 
         // Adiciona o efeito de estática
-        this.createStaticEffect();
+        //this.createStaticEffect();
 
         // Inicia o loop de animação
         this.clock = new THREE.Clock();
@@ -63,6 +64,37 @@ class Game {
         });
     }
 
+    createBoxes() {
+        const loader = new THREE.GLTFLoader();
+
+        loader.load('./assets/scenario/box/scene.gltf', (gltf) => {
+            const box1 = gltf.scene.clone();
+            const box2 = gltf.scene.clone();
+            const box3 = gltf.scene.clone();
+            const box4 = gltf.scene.clone();
+
+            box1.scale.set(3, 3, 3);
+            box2.scale.set(3, 3, 3);
+            box3.scale.set(3, 3, 3);
+            box4.scale.set(3, 3, 3);
+
+            box1.position.set(-2050, -650, -100); // Posicionamento personalizado
+            box1.renderOrder = 1;
+            box2.position.set(-2050, -400, -100); // Posicionamento personalizado
+            box2.renderOrder = 1;
+    
+            box3.position.set(2050, -650, -100); // Posicionamento personalizado
+            box3.renderOrder = 1;
+            box4.position.set(2050, -400, -100); // Posicionamento personalizado
+            box4.renderOrder = 1;
+
+            this.scene.add(box1);
+            this.scene.add(box2);
+            this.scene.add(box3);
+            this.scene.add(box4);
+        });
+    
+    }
 
     createGround() {
         // Ajusta a largura para ser igual à largura do fundo
