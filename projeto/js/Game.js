@@ -16,7 +16,7 @@ class Game {
         this.inputHandler = new InputHandler(this.fighter1, this.fighter2);
 
         // Adiciona o efeito de estática
-        //this.createStaticEffect();
+        this.createStaticEffect();
 
         // Inicia o loop de animação
         this.clock = new THREE.Clock();
@@ -102,25 +102,25 @@ class Game {
             const box3 = gltf.scene.clone();
             const box4 = gltf.scene.clone();
 
-            box1.scale.set(3, 3, 3);
-            box2.scale.set(3, 3, 3);
-            box3.scale.set(3, 3, 3);
-            box4.scale.set(3, 3, 3);
+            box1.scale.set(2, 6, 2);
+            // box2.scale.set(3, 6, 3);
+            box3.scale.set(2, 6, 2);
+            // box4.scale.set(3, 3, 3);
 
-            box1.position.set(-2050, -650, -100); // Posicionamento personalizado
+            box1.position.set(-2350, -850, -100); // Posicionamento personalizado
             box1.renderOrder = 1;
-            box2.position.set(-2050, -400, -100); // Posicionamento personalizado
-            box2.renderOrder = 1;
+            // box2.position.set(-2050, -400, -100); // Posicionamento personalizado
+            // box2.renderOrder = 1;
 
-            box3.position.set(2050, -650, -100); // Posicionamento personalizado
+            box3.position.set(2250, -850, -100); // Posicionamento personalizado
             box3.renderOrder = 1;
-            box4.position.set(2050, -400, -100); // Posicionamento personalizado
-            box4.renderOrder = 1;
+            // box4.position.set(2050, -400, -100); // Posicionamento personalizado
+            // box4.renderOrder = 1;
 
             this.scene.add(box1);
-            this.scene.add(box2);
+            // this.scene.add(box2);
             this.scene.add(box3);
-            this.scene.add(box4);
+            // this.scene.add(box4);
         });
 
     }
