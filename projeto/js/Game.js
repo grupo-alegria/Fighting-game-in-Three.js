@@ -31,6 +31,25 @@ class Game {
         const ambientLight = new THREE.AmbientLight(0x404040, 2);
         this.scene.add(ambientLight);
 
+        // Adiciona luz direcional para sombras
+        const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+        directionalLight.position.set(70, 0, 0); // Posiciona a luz acima e à frente da cena
+        directionalLight.castShadow = true; // Ativa sombras para esta luz
+
+        // Configura o mapa de sombras
+        directionalLight.shadow.mapSize.width = 2048; // Aumenta a resolução do mapa de sombras
+        directionalLight.shadow.mapSize.height = 2048;
+        directionalLight.shadow.camera.near = 0.5;
+        directionalLight.shadow.camera.far = 500;
+
+        // Ajusta o ângulo da sombra para cobrir toda a cena
+        directionalLight.shadow.camera.left = -1000;
+        directionalLight.shadow.camera.right = 1000;
+        directionalLight.shadow.camera.top = 1000;
+        directionalLight.shadow.camera.bottom = -1000;
+
+        this.scene.add(directionalLight);
+
         // Ativa sombras no dragão (deve ser chamado após o carregamento do modelo)
         if (this.dragon) {
             this.dragon.traverse((child) => {
@@ -44,6 +63,16 @@ class Game {
         // Ativa sombras no chão
         if (this.ground) {
             this.ground.receiveShadow = true;
+        }
+
+        // Ativa sombras nos lutadores
+        if (this.fighter1) {
+            this.fighter1.mesh.castShadow = true;
+            this.fighter1.mesh.receiveShadow = true;
+        }
+        if (this.fighter2) {
+            this.fighter2.mesh.castShadow = true;
+            this.fighter2.mesh.receiveShadow = true;
         }
 
         // Ativa sombras no renderizador
@@ -82,7 +111,7 @@ class Game {
             box1.renderOrder = 1;
             box2.position.set(-2050, -400, -100); // Posicionamento personalizado
             box2.renderOrder = 1;
-    
+
             box3.position.set(2050, -650, -100); // Posicionamento personalizado
             box3.renderOrder = 1;
             box4.position.set(2050, -400, -100); // Posicionamento personalizado
@@ -93,7 +122,7 @@ class Game {
             this.scene.add(box3);
             this.scene.add(box4);
         });
-    
+
     }
 
     createGround() {

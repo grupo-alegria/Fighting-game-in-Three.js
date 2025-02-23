@@ -40,7 +40,7 @@ class InputHandler {
             if (this.keys['ArrowRight']) this.fighter2.move(1);  // Move para a direita
             //if (this.keys['ArrowUp']) this.fighter2.jump();     // Pula
 
-            if (this.keys['Numpad0']) {
+            if (this.keys['Enter']) {
                 this.fighter2.punch();
                 this.applyCooldown('fighter2');
             }
